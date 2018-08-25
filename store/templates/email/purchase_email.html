@@ -1,0 +1,9 @@
+<p>Hello {{ username}}, thanks for ... :</p>
+
+{% for order in orders %}
+<p>{{ order.quantity }} x {{ order.book.title }} by {{ order.book.author }}</p>
+{% endfor %}
+
+<p>Ciao for now!</p>
+
+<p>Mystery Books</p>

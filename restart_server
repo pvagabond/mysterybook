@@ -1,0 +1,6 @@
+#!/bin/bash
+echo "killall uwsgi process"
+sudo killall -s9 uwsgi
+sleep 3
+echo "restart uwsgi process"
+uwsgi --ini /home/azureuser/django/uwsgi.ini >>/home/azureuser/tmp/uwsgi.log 2>&1 &

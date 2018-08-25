@@ -1,0 +1,68 @@
+{%  extends 'base.html' %}
+
+{% load staticfiles %}
+
+{% block body %}
+
+    <div class="col-md-8 col-md-offset-2 col-sm-12 maincontent">
+        <div class="detail_book_display">
+            <img class="detail_book_img" src="{{ MEDIA_URL }}{{ book.cover_image }}"/>
+            <span class="detail_book_title">{{ book.title }}</span>
+            <span class="detail_book_author">{{ book.author }}</span>
+            <span class="detail_book_description">{{ book.description }}</span>
+            <span class="detail_book_reviews_title">Reviews {% if reviews %}({{ reviews.count }}){% endif %}</span>
+            <div class="detail_book_reviews">
+                <div class="col-md-6 col-md-offset-3">
+                    {% if form %}
+                        <h4>Have you read this book? Post a review</h4>
+                        <form class="form-inline" action="{% url 'book_details' book.pk %}" method="POST">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <input type="submit" value="Submit">
+                        </form>
+                       <h4 style="margin-top:20px;">You Are Reviewing From</h4>
+                    {% endif %}
+                    <div id="map-canvas" class="detail_book_reviews_map"></div>
+                    <script>
+                        var map;
+                        var marker;
+                        var reviews = {};
+
+                        function initialize() {
+                            map = new google.maps.Map(document.getElementById('map-canvas'), {
+                                zoom: 8,
+                                center: {lat: {{ geo_info.latitude }}, lng: {{ geo_info.longitude }}}
+                            });
+
+                            $.getJSON('/api/v1/review/?&book={{ book.id }}', function (data) {
+                                $.each(data['objects'], function(i, val) {
+                                    var review = val;
+                                    var center = new google.maps.LatLng(review.latitude, review.longitude);
+                                    var title = review.name;
+                                    marker = new google.maps.Marker({
+                                        map: map,
+                                        position: center,
+                                        title: title
+                                    });
+                                });
+                            });
+                        }
+                        google.maps.event.addDomListener(window, 'load', initialize);
+                    </script>
+                    {% for review in reviews %}
+                        <div>
+                            {{ review.text }}
+                        </div>
+                        <div style="font-weight: bold">
+                            -{{ review.user.username }} on {{ review.publish_date }}
+                        </div>
+                    {% empty %}
+                        <div style="margin-top: 20px">
+                            There are no reviews for this book yet!
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{%  endblock %}

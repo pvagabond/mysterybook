@@ -1,0 +1,9 @@
+Hello {{ username}}, thanks for ... :
+
+{% for order in orders %}
+{{ order.quantity }} x {{ order.book.title }} by {{ order.book.author }}
+{% endfor %}
+
+Ciao for now!
+
+Mystery Books
