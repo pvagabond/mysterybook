@@ -1,15 +1,18 @@
 from django.contrib import admin
 
-from .models import Book, Author, BookOrder, Cart, Review
+from .models import Book, Author, BookOrder, Cart, Review, OrderLineItem
 
-class BookAdmin(admin.ModelAdmin): 
+class BookAdmin(admin.ModelAdmin):
     list_display = ('title', 'author', 'price', 'stock')
 
 class AuthorAdmin(admin.ModelAdmin):
     list_display = ('last_name', 'first_name')
 
 class BookOrderAdmin(admin.ModelAdmin):
-    list_display = ('book', 'cart', 'quantity')
+    list_display = ('orderId', 'cart')
+
+class OrderLineItemAdmin(admin.ModelAdmin):
+    list_display = ('book', 'order', 'quantity')
 
 class CartAdmin(admin.ModelAdmin):
     list_display = ('user', 'active', 'order_date')
@@ -19,3 +22,4 @@ admin.site.register(Author, AuthorAdmin)
 admin.site.register(BookOrder, BookOrderAdmin)
 admin.site.register(Cart, CartAdmin)
 admin.site.register(Review)
+admin.site.register(OrderLineItem, OrderLineItemAdmin)

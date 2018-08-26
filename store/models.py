@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from random import seed, random
 
 
 class Author(models.Model):
@@ -44,30 +45,41 @@ class Cart(models.Model):
     def add_to_cart(self, book_id):
         book = Book.objects.get(pk=book_id)
         try:
-            prexisting_order = BookOrder.objects.get(book=book, cart=self)
-            prexisting_order.quantity += 1
-            prexisting_order.save()
+            prexisting_order = BookOrder.objects.get(cart=self)
+            prexisting_order.add_to_line_itme(book=book)
         except BookOrder.DoesNotExist:
-            new_order = BookOrder.objects.create(
-                book=book,
-                cart=self,
-                quantity=1
-            )
+            new_order = BookOrder.objects.create(cart=self)
+            new_lineItem = OrderLineItem.objects.create(book=book, order=new_order, quantity=1)
 
     def remove_from_cart(self, book_id):
         book = Book.objects.get(pk=book_id)
         try:
-            prexisting_order = BookOrder.objects.get(book=book, cart=self)
-            if prexisting_order.quantity > 1:
-                prexisting_order.quantity -= 1
-                prexisting_order.save()
+            prexisting_order = BookOrder.objects.get(cart=self)
+            prexisting_lineItem = OrderLineItem.objects.get(order=prexisting_order, book=book)
+            if prexisting_lineItem.quantity > 1:
+                prexisting_lineItem.quantity -= 1
+                prexisting_lineItem.save()
             else:
-                prexisting_order.delete()
+                prexisting_lineItem.delete()
         except BookOrder.DoesNotExist:
             pass
 
 
 class BookOrder(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    seed(1)
+    orderId = models.IntegerField(default=random()*10)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
-    quantity = models.IntegerField()
+
+    def add_to_line_itme(self, book):
+        try:
+            prexisting_lineItem = OrderLineItem.objects.get(book=book, order=self)
+            prexisting_lineItem.quantity +=1
+            prexisting_lineItem.save()
+        except OrderLineItem.DoesNotExist:
+            new_lineItem = OrderLineItem.objects.create(book=book, order=self, quantity=1)
+
+
+class OrderLineItem(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    order = models.ForeignKey(BookOrder, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=0)

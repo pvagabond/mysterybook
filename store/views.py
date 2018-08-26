@@ -14,7 +14,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .forms import ReviewForm
-from .models import Book, BookOrder, Cart, Review
+from .models import Book, BookOrder, Cart, Review, OrderLineItem
 
 
 def index(request):
@@ -116,13 +116,14 @@ def cart(request):
     if request.user.is_authenticated:
         my_cart = Cart.objects.filter(user=request.user, active=True)
         orders = BookOrder.objects.filter(cart=my_cart[0]) if my_cart else []
+        lineItems = OrderLineItem.objects.filter(order=orders[0]) if orders else []
         total = 0
         count = 0
-        for order in orders:
-            total += (order.book.price * order.quantity)
-            count += order.quantity
+        for lineItem in lineItems:
+            total += (lineItem.book.price * lineItem.quantity)
+            count += lineItem.quantity
         context = {
-            'cart': orders,
+            'cart': lineItems,
             'total': total,
             'count': count,
         }
@@ -136,13 +137,14 @@ def checkout(req, processor):
     if req.user.is_authenticated:
         cart = Cart.objects.filter(user=req.user.id, active=True)
         orders = BookOrder.objects.filter(cart=cart[0])
+        lineItems = OrderLineItem.objects.filter(order=orders[0])
 
         if processor == "paypal":
-            redirect_url = checkout_paypal(req, cart, orders)
+            redirect_url = checkout_paypal(req, cart, lineItems)
             return redirect(redirect_url)
         elif processor == "stripe":
             token = req.POST['stripeToken']
-            status = checkout_stripe(cart, orders, token)
+            status = checkout_stripe(cart, lineItems, token)
 
             if status:
                 return redirect(reverse('process_order', args=['stripe']))
@@ -289,3 +291,25 @@ def complete_order(req, processor):
             return render(req, 'store/order_complete.html', context)
     else:
         return redirect('index')
+
+def order(request):
+    if request.user.is_authenticated:
+        my_cart = Cart.objects.filter(user=request.user, active=False)
+        orders = BookOrder.objects.filter(cart=my_cart[0]) if my_cart else []
+        lineItems = OrderLineItem.objects.filter(order=orders[0]) if orders else []
+        total = 0
+        count = 0
+        for lineItem in lineItems:
+            total += (lineItem.book.price * lineItem.quantity)
+            count += lineItem.quantity
+        context = {
+            'cart': lineItems,
+            'total': total,
+            'count': count,
+        }
+        return render(request, 'store/cart.html', context)
+
+    else:
+        return redirect('index')
+
+

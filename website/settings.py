@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '_c7z577#g1bgw0g3g(t)jur92!og#ad)f1%qefyhat0=e8t6x5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # ALLOWED_HOSTS = ["yanspython.westus.cloudapp.azure.com", "localhost", "127.0.0.1", "172.28"]
 ALLOWED_HOSTS = ['*']
@@ -159,7 +159,7 @@ INCLUDE_REGISTER_URL = True
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.sendgrid.net"
 EMAIL_HOST_USER = "azure_6f6c371b47620cc82929dd89b7ba2479@azure.com"
-EMAIL_HOST_PASSWORD = "Kells1st"
+EMAIL_HOST_PASSWORD = os.environ['DJANGO_EMAIL_PASSWORD']
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = "books@coconut.com"

@@ -1,4 +1,9 @@
 #!/bin/bash
+echo "enter Sendgrid email server password"
+read password
+export DJANGO_EMAIL_PASSWORD=$password
+echo "the password has been set to $DJANGO_EMAIL_PASSWORD"
+
 echo "killall uwsgi process"
 sudo killall -s9 uwsgi
 sleep 3
