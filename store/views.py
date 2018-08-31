@@ -294,20 +294,27 @@ def complete_order(req, processor):
 
 def order(request):
     if request.user.is_authenticated:
-        my_cart = Cart.objects.filter(user=request.user, active=False)
-        orders = BookOrder.objects.filter(cart=my_cart[0]) if my_cart else []
-        lineItems = OrderLineItem.objects.filter(order=orders[0]) if orders else []
-        total = 0
-        count = 0
-        for lineItem in lineItems:
-            total += (lineItem.book.price * lineItem.quantity)
-            count += lineItem.quantity
+        my_carts = Cart.objects.filter(user=request.user, active=False)
+        orders = []
+        for cart in my_carts:
+            order = dict()
+            bookOrders = BookOrder.objects.filter(cart=cart)
+            lineItems = OrderLineItem.objects.filter(order=bookOrders[0]) if bookOrders else []
+            total = 0
+            count = 0
+            for lineItem in lineItems:
+                total += (lineItem.book.price * lineItem.quantity)
+                count += lineItem.quantity
+            order['total'] = total
+            order['count'] = count
+            order['lineItems'] = lineItems
+            order['orderDate'] = cart.order_date
+            order['Id'] = bookOrders[0].orderId
+            orders.append(order)
         context = {
-            'cart': lineItems,
-            'total': total,
-            'count': count,
+            'orders': orders,
         }
-        return render(request, 'store/cart.html', context)
+        return render(request, 'store/order.html', context)
 
     else:
         return redirect('index')

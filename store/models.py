@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
-from random import seed, random
+from random import seed, randint
 
 
 class Author(models.Model):
@@ -67,7 +67,7 @@ class Cart(models.Model):
 
 class BookOrder(models.Model):
     seed(1)
-    orderId = models.IntegerField(default=random()*10)
+    orderId = models.IntegerField(default=randint(100000, 99999999))
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
 
     def add_to_line_itme(self, book):
