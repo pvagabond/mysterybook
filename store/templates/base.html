@@ -69,7 +69,17 @@
             <div class="row">
                 {%  block body %}
                 <div class="col-md-8 col-md-offset-2 col-sm-12 maincontent">
-                    <div style="text-align: center"><h3>Welcome to our store!</h3></div>
+                    <div class="row">
+                    <div class="col-md-12" style="text-align: center"><h3>Welcome to our store!</h3></div>
+                    {% if form %}
+                    <form class="input-group col-sm-3" action="{% url 'index' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="input-group-prepend">
+                            <textarea name="text" id="id_text"></textarea>
+                        </div>
+                        <input type="submit" value="Submit">
+                    </form>
+                    {% endif %}
                     {% for book in books %}
                         <div class="storefront_book_display">
                             <a href="{% url 'book_details' book.id %}">

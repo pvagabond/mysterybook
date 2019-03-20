@@ -13,7 +13,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 
-from .forms import ReviewForm
+from .forms import ReviewForm, SearchForm
 from .models import Book, BookOrder, Cart, Review, OrderLineItem
 
 
@@ -23,8 +23,18 @@ def index(request):
 
 def store(request):
     books = Book.objects.all()
+    form = None
+    if request.method == "POST":
+        form = SearchForm(request.POST)
+        if form.is_valid():
+            search_string = form.cleaned_data.get('text')
+            books = Book.objects.filter(title__icontains=search_string)
+    else:
+        form = SearchForm()
+
     context = {
         'books': books,
+        'form': form
     }
     return render(request, 'base.html', context)
 

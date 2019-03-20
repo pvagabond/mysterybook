@@ -1,5 +1,8 @@
 .DS_STORE
 
+# db files
+db.sqlite3
+
 # swp files
 *.swp
 
